@@ -7,12 +7,13 @@
 import type { BanknoteNominal } from "./TypeBanknote";
 import { StorageSlots } from "./StorageSlots";
 import { WithdrawStrategy } from "./WithdrawStrategy";
-import { SlotBanknote } from "./SlotBanknote";
+import { GreedyWithdrawStrategy } from "./GreedyWithdrawStrategy";
+import { StorageBanknote } from "./StorageBanknote";
 
 export class ATM {
     constructor(
-        private storage: StorageSlots = new StorageSlots(),
-        private strategy: WithdrawStrategy = new WithdrawStrategy()
+        private storage: StorageBanknote = new StorageSlots(),
+        private strategy: WithdrawStrategy = new GreedyWithdrawStrategy()
     ) {}
 
     deposit(nominal: BanknoteNominal, count: number) {

@@ -1,7 +1,8 @@
 import type { BanknoteNominal } from "./TypeBanknote";
 import { SlotBanknote } from "./SlotBanknote";
+import { StorageBanknote } from "./StorageBanknote";
 
-export class StorageSlots {
+export class StorageSlots implements StorageBanknote {
     private slots: Map<BanknoteNominal, SlotBanknote> = new Map();
 
     add(nominal: BanknoteNominal, count: number): void {
@@ -56,10 +57,14 @@ export class StorageSlots {
         console.log(`Общая выданная сумма: ${totalWithdrawn}`);
 
         } catch (error) {
-            for (const {slot, count} of executedOperations) {
-                slot.count += count;
-            }
+            this.rollbackOperations(executedOperations);
             throw error;
+        }
+    }
+
+    private rollbackOperations(operations: Array<{slot: SlotBanknote, count: number}>): void {
+        for (const {slot, count} of operations) {
+            slot.count += count;
         }
     }
 }
