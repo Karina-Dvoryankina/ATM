@@ -2,10 +2,10 @@ import type { BanknoteNominal } from "./TypeBanknote";
 import { SlotBanknote } from "./SlotBanknote";
 
 export class StorageSlots {
-    slots: Map<BanknoteNominal, SlotBanknote> = new Map();
+    private slots: Map<BanknoteNominal, SlotBanknote> = new Map();
 
     add(nominal: BanknoteNominal, count: number): void {
-        if(count < 0) {
+        if(count <= 0) {
             throw new Error("Количество банкнот должно быть положительным числом");
         }
 
@@ -29,27 +29,37 @@ export class StorageSlots {
         return total;
     }
 
-    validateRemove(banknotes: Map<BanknoteNominal, number>): boolean {
-        for (const [nominal, requestedCount] of banknotes) {
-            const slot = this.slots.get(nominal);
-            
-            if (!slot || slot.count < requestedCount) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     remove(banknotes: Map<BanknoteNominal, number>): void {
-        if(!this.validateRemove(banknotes)){
-            throw new Error ("Невозможно выдать запрошенную сумму")
+        let executedOperations: Array<{slot: SlotBanknote, count: number}> = [];
+        try {
+            console.log("Выданные банкноты:");
+        let totalWithdrawn = 0;
+        
+        for (const [nominal, requestedCount] of banknotes) {
+            if (requestedCount <= 0) {
+                throw new Error(`Неверное количество банкнот: ${requestedCount}`);
+            }
+            const slot = this.slots.get(nominal);
+            if (!slot) {
+                throw new Error(`Нет ячейки для номинала ${nominal}`);
+            }
+            if (slot.count < requestedCount) {
+                throw new Error(`Недостаточно банкнот номиналом ${nominal}`);
+            }
+            
+            console.log(`Номинал: ${nominal}, Количество: ${requestedCount}`);
+            slot.count -= requestedCount;
+            totalWithdrawn += nominal * requestedCount;
+            
+            executedOperations.push({slot, count: requestedCount});
         }
+        console.log(`Общая выданная сумма: ${totalWithdrawn}`);
 
-        console.log("Выданные банкноты:");
-        banknotes.forEach((count, nominal) => {
-            console.log(`Номинал: ${nominal}, Количество: ${count}`);
-            const slot = this.slots.get(nominal)!;
-            slot.count -= count;
-        });
+        } catch (error) {
+            for (const {slot, count} of executedOperations) {
+                slot.count += count;
+            }
+            throw error;
+        }
     }
 }
