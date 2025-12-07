@@ -28,4 +28,15 @@ export class StorageSlots {
         });
         return total;
     }
+
+    remove(banknotes: Map<BanknoteNominal, number>): void {
+        console.log("Выданные банкноты:");
+        banknotes.forEach((count, nominal) => {
+            console.log(`Номинал: ${nominal}, Количество: ${count}`);
+            const slot = this.slots.get(nominal);
+            if(slot){
+                slot.count -= count;
+            }
+        });
+    }
 }

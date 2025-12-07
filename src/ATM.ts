@@ -23,21 +23,9 @@ export class ATM {
         if(amount <= 0) {
             throw new Error("Сумма для снятия должна быть положительным числом");
         }
-
         const slots = this.storage.getSlots();
-        const plan = this.strategy.withdraw(amount, slots);
-        this.issueAmountWithdrawPlan(plan, slots);
-    }
-
-    issueAmountWithdrawPlan(plan: Map<BanknoteNominal, number>, slots: ReadonlyMap<BanknoteNominal, SlotBanknote>): void {
-        console.log("Выданные банкноты:");
-        plan.forEach((count, nominal) => {
-            console.log(`Номинал: ${nominal}, Количество: ${count}`);
-            const slot = slots.get(nominal);
-            if(slot){;
-                slot.count -= count;
-            }
-        });
+        const banknotes = this.strategy.withdraw(amount, slots);
+        this.storage.remove(banknotes);
     }
 
     getBalance(): number {
