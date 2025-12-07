@@ -30,5 +30,4 @@ export class WithdrawStrategy {
         }
         return result;
     }
-
 }

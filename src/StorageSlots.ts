@@ -29,14 +29,27 @@ export class StorageSlots {
         return total;
     }
 
+    validateRemove(banknotes: Map<BanknoteNominal, number>): boolean {
+        for (const [nominal, requestedCount] of banknotes) {
+            const slot = this.slots.get(nominal);
+            
+            if (!slot || slot.count < requestedCount) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     remove(banknotes: Map<BanknoteNominal, number>): void {
+        if(!this.validateRemove(banknotes)){
+            throw new Error ("Невозможно выдать запрошенную сумму")
+        }
+
         console.log("Выданные банкноты:");
         banknotes.forEach((count, nominal) => {
             console.log(`Номинал: ${nominal}, Количество: ${count}`);
-            const slot = this.slots.get(nominal);
-            if(slot){
-                slot.count -= count;
-            }
+            const slot = this.slots.get(nominal)!;
+            slot.count -= count;
         });
     }
 }
